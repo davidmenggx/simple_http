@@ -10,8 +10,9 @@ PORT = 1738
 
 RUNNING = True
 
-REQUIRED_HEADERS = ['host']
-DISPATCH_DICTIONARY = {}
+REQUIRED_HEADERS = ['host', 'content-length']
+KEEPALIVE_TIME = 100 # seconds
+DISPATCH_DICTIONARY = {'POST': 1}
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -25,54 +26,85 @@ signal.signal(signal.SIGINT, signal_shutdown) # Catch CTRL+C
 signal.signal(signal.SIGTERM, signal_shutdown) # Catch kill command
 
 def handle_connection(connection: socket.socket) -> None:
+    print('thread started')
+    connection.settimeout(KEEPALIVE_TIME)
     with connection as s:
-        buffer = bytearray()
-        header_delimiter = b'\r\n\r\n'
+        leftover_buffer = bytearray()
+        while True:
+            try:
+                buffer = bytearray(leftover_buffer)
+                header_delimiter = b'\r\n\r\n'
 
-        while header_delimiter not in buffer:
-            chunk = s.recv(1024)
-            if not chunk:
-                print('Client closed before sending full headers')
-                # maybe send a response here too
-                return
-            buffer.extend(chunk)
-        
-        head_raw, _, remaining_bytes = buffer.partition(header_delimiter) # partition returns (before, delimiter, after)
-        head = head_raw.decode('utf-8')
+                while header_delimiter not in buffer:
+                    chunk = s.recv(1024)
+                    if not chunk:
+                        if not buffer:
+                            print(f'Connection closed cleanly by client')
+                            # maybe send a response here too
+                            break
+                        else:
+                            print(f'Connection closed before client sent full header')
+                            # error here
+                            return
+                    buffer.extend(chunk)
+                
+                if not buffer:
+                    break
 
-        try:
-            (method, path, protocol_version), remaining_head = get_request_line(head)
-        except ParseError:
-            return # sendall bad request
+                head_raw, _, remaining_bytes = buffer.partition(header_delimiter) # partition returns (before, delimiter, after)
+                head = head_raw.decode('utf-8')
 
-        if protocol_version != 'HTTP/1.1':
-            return # sendall incorrect version 505
+                try:
+                    (method, path, protocol_version), remaining_head = get_request_line(head)
+                except ParseError:
+                    print('parse error 1')
+                    break # sendall bad request
 
-        if method not in DISPATCH_DICTIONARY.keys():
-            return # sendall 405 method not allowed
+                if protocol_version != 'HTTP/1.1':
+                    break # sendall incorrect version 505
 
-        try:
-            headers = get_headers(remaining_head)
-        except ParseError:
-            return # sendall bad request 
+                if method not in DISPATCH_DICTIONARY.keys():
+                    break # sendall 405 method not allowed
 
-        if not all(k in headers for k in REQUIRED_HEADERS):
-            return #sendall bad request
+                try:
+                    headers = get_headers(remaining_head)
+                except ParseError:
+                    break # sendall bad request 
 
-        try:
-            content_length = int(headers.get('Content-Length', 0)) # important, read this from the headers
-        except ValueError:
-            return # sendall bad request
+                if not all(k in headers for k in REQUIRED_HEADERS):
+                    break #sendall bad request
 
-        body = bytearray(remaining_bytes)
+                try:
+                    content_length = int(headers.get('content-length', 0)) # important, read this from the headers
+                except ValueError:
+                    print('content length issue')
+                    break # sendall bad request
 
-        while len(body) < content_length:
-            bytes_to_read = content_length - len(body)
-            chunk = s.recv(min(bytes_to_read, 4096))
-            if not chunk:
-                print('Connection lost while reading body')
-                return # send failure back ?, maybe internal server error ?
-            body.extend(chunk)
+                body = bytearray(remaining_bytes)
+
+                while len(body) < content_length:
+                    bytes_to_read = content_length - len(body)
+                    chunk = s.recv(min(bytes_to_read, 4096))
+                    if not chunk:
+                        print('Connection lost while reading body')
+                        return # send failure back ?, maybe internal server error ?
+                    body.extend(chunk)
+                
+                actual_body = body[:content_length]
+                leftover_buffer = body[content_length:]
+
+                print(actual_body.decode('utf-8'))
+
+                if headers.get('connection', '') == 'close':
+                    print('connection closed on request header')
+                    break
+            except (socket.timeout):
+                print(f'connection closed cleanly - idle for {KEEPALIVE_TIME}s')
+                break
+            except ConnectionResetError:
+                print('error: connection forcefully shut down')
+                break
+    print('thread shut down')
 
 def main() -> None:
     with sock as s:
