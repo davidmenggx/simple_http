@@ -6,5 +6,5 @@ MIME_TYPES = {
     '.jpg': 'image/jpeg',
     '.jpeg': 'image/jpeg',
     '.txt': 'text/plain',
-    
+    '.pdf': 'application/pdf'
 }

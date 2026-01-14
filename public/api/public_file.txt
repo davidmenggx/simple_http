@@ -1,7 +1,0 @@
-{"firstName": "Brian", "lastName": "Smith", "email": "bsmth@example.com"}
-{"firstName": "Brian", "lastName": "Smith", "email": "bsmth@example.com"}
-{"firstName": "Brian", "lastName": "Smith", "email": "bsmth@example.com"}
-{"firstName": "Brian", "lastName": "Smith", "email": "bsmth@example.com"}
-{"firstName": "Brian", "lastName": "Smith", "email": "bsmth@example.com"}
-{"firstName": "Brian", "lastName": "Smith", "email": "bsmth@example.com"}
-{"firstName": "Brian", "lastName": "Smith", "email": "bsmth@example.com"}
