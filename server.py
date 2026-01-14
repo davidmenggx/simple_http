@@ -3,7 +3,6 @@ import threading
 import signal
 
 from constants import responses
-from exceptions import ParseError
 from handlers import get, head, post, options
 from utilities import get_headers, get_request_line
 
@@ -26,6 +25,9 @@ def signal_shutdown(_sig, _frame) -> None:
 
 signal.signal(signal.SIGINT, signal_shutdown) # Catch CTRL+C
 signal.signal(signal.SIGTERM, signal_shutdown) # Catch kill command
+
+class ParseError(Exception):
+    pass
 
 def handle_connection(connection: socket.socket) -> None:
     print('thread started')
@@ -69,7 +71,7 @@ def handle_connection(connection: socket.socket) -> None:
 
                 if method not in DISPATCH_DICTIONARY.keys():
                     s.sendall(responses.not_implemented())
-                    break 
+                    break
 
                 try:
                     headers = get_headers(remaining_head)
