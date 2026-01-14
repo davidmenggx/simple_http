@@ -27,18 +27,15 @@ def post(path: str, headers: dict[str, str], body: bytes = b'') -> bytes:
         with open(requested_path, 'ab') as f:
             try:
                 f.write(body)
-                f.write(('\r\n').encode('utf-8'))
 
                 f.flush()
 
-                with open(requested_path, 'rb') as f:
-                    content = f.read()
                 etag = get_etag(str(requested_path))
 
                 now = datetime.now(timezone.utc).strftime("%a, %d %b %Y %H:%M:%S GMT")
 
                 response = (
-                    f'HTTP/1.1 201 Created\r\n'
+                    f'HTTP/1.1 200 OK\r\n'
                     f"Server: David's server\r\n"
                     f'Date: {now}\r\n'
                     f'Location: {path}\r\n'
@@ -54,7 +51,7 @@ def post(path: str, headers: dict[str, str], body: bytes = b'') -> bytes:
                 response += ('\r\n')
                 
                 return response.encode('utf-8')
-            except:
+            except Exception:
                 return responses.internal_server_error()
     except FileNotFoundError:
         return responses.not_found()

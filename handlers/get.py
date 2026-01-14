@@ -43,7 +43,7 @@ def get(path: str, headers: dict[str,str], body: bytes = b'') -> bytes:
 
                 last_modified_timestamp = os.stat(requested_path).st_mtime
                 modified_utc = datetime.fromtimestamp(last_modified_timestamp, tz=timezone.utc)
-                last_modified = modified_utc.strftime("%A, %d %B %Y %H:%M:%S GMT")
+                last_modified = modified_utc.strftime("%a, %d %b %Y %H:%M:%S GMT")
 
                 response += (f'Last-Modified: {last_modified}\r\n')
                 
