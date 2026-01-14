@@ -1,9 +1,12 @@
-from exceptions import ParseError
+from parse_error import ParseError
 
-def get_request_line(request: str) -> tuple[tuple[str, str, str], list[str]]: # returns ((method, path, version), rest of text)
+def get_request_line(request: str) -> tuple[tuple[str, str, str], list[str]]:
+    """
+    Returns request line as tuple (HTTP method, path, HTTP version) as well as list of headers
+    """
     request_line = request.split('\r\n')[0]
     
-    if len(request_line.split()) != 3:
+    if len(request_line.split()) != 3: # make sure all three elements of the request line are present
         raise ParseError
     
     method, path, protocol_version = request_line.split()

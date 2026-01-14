@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 from datetime import datetime, timezone
 
@@ -9,6 +8,27 @@ BASE_DIR = Path('public').resolve()
 API_DIR = Path('public/api').resolve()
 
 def post(path: str, headers: dict[str, str], body: bytes = b'') -> bytes:
+    """
+    Handler function for HTTP POST method, returns response in bytes
+
+    Validates the path
+
+    Attempts to write request body to specified path
+
+    Formulates response using:
+    1) Timestamp of request
+    2) Connection status
+    3) Content location
+    4) Content type
+    5) ETag
+
+    Possible responses:
+    1) 200 OK
+    2) 403 Forbidden
+    3) 404 Not Found
+    4) 405 Method Not Allowed
+    5) 500 Internal Server Error
+    """
     if path[0] == '/':
         path = path[1:]
 

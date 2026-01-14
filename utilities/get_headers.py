@@ -1,6 +1,11 @@
-from exceptions import ParseError
+from parse_error import ParseError
 
 def get_headers(headers: list[str]) -> dict[str, str]:
+    """
+    Returns HTTP headers in dictionary mapping
+
+    All values in lowercase
+    """
     res = {}
     
     for h in headers:

@@ -8,6 +8,26 @@ from constants import responses, MIME_TYPES
 BASE_DIR = Path('public').resolve()
 
 def head(path: str, headers: dict[str,str], body: bytes = b'') -> bytes:
+    """
+    Handler function for HTTP HEAD method, returns response in bytes
+
+    Validates the path
+
+    Formulates response using:
+    1) Timestamp of request
+    2) Connection status
+    3) Content length
+    4) Content type
+    5) Last modified metadata
+    6) ETag
+
+    Possible responses:
+    1) 200 OK
+    2) 304 Not Modified
+    3) 403 Forbidden
+    4) 404 Not Found
+    5) 500 Internal Server Error
+    """
     if path[0] == '/':
         path = path[1:]
 

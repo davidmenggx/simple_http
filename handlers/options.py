@@ -8,6 +8,19 @@ API_DIR = Path('public/api').resolve()
 
 
 def options(path: str, headers: dict[str,str], body: bytes = b'') -> bytes:
+    """
+    Handler function for HTTP OPTIONS method, returns response in bytes
+
+    Validates the path
+
+    Formulates response based on resource category (static or API)
+
+    Possible responses:
+    1) 204 No Content
+    2) 403 Forbidden
+    3) 404 Not Found
+    4) 500 Internal Server Error
+    """
     if path[0] == '/':
         path = path[1:]
 

@@ -3,6 +3,7 @@ import threading
 import signal
 
 from constants import responses
+from parse_error import ParseError
 from handlers import get, head, post, options
 from utilities import get_headers, get_request_line
 
@@ -20,21 +21,32 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
 def signal_shutdown(_sig, _frame) -> None:
+    """Shut down server"""
     global RUNNING
     RUNNING = False
 
 signal.signal(signal.SIGINT, signal_shutdown) # Catch CTRL+C
 signal.signal(signal.SIGTERM, signal_shutdown) # Catch kill command
 
-class ParseError(Exception):
-    pass
-
 def handle_connection(connection: socket.socket) -> None:
+    """
+    Target function for worker threads to handle request
+
+    Reads message from socket and parses out request line, headers, and body
+
+    If any parsing fails, immediately return 400 Bad Request
+
+    Validates HTTP version, required headers, and supported methods
+
+    Sends the appropriate response based on HTTP method
+
+    Keeps connection alive, unless otherwise specified by client
+    """
     print('thread started')
     connection.settimeout(KEEPALIVE_TIME)
     with connection as s:
-        leftover_buffer = bytearray()
-        while True:
+        leftover_buffer = bytearray() # in case buffer contains part of two messages, split them up
+        while True: # keep the connection alive, unless otherwise specified by client
             try:
                 buffer = bytearray(leftover_buffer)
                 header_delimiter = b'\r\n\r\n'
@@ -69,7 +81,7 @@ def handle_connection(connection: socket.socket) -> None:
                     s.sendall(responses.http_version_not_supported())
                     break 
 
-                if method not in DISPATCH_DICTIONARY.keys():
+                if method not in DISPATCH_DICTIONARY.keys(): # make sure that method is supported early
                     s.sendall(responses.not_implemented())
                     break
 
@@ -79,7 +91,7 @@ def handle_connection(connection: socket.socket) -> None:
                     s.sendall(responses.bad_request())
                     break
 
-                if not all(k in headers for k in REQUIRED_HEADERS):
+                if not all(k in headers for k in REQUIRED_HEADERS): # check REQUIRED_HEADERS
                     s.sendall(responses.bad_request())
                     break
 
@@ -103,11 +115,11 @@ def handle_connection(connection: socket.socket) -> None:
                 actual_body = body[:content_length]
                 leftover_buffer = body[content_length:]
 
-                response = DISPATCH_DICTIONARY[method](path, headers, actual_body)
+                response = DISPATCH_DICTIONARY[method](path, headers, actual_body) # call the appropriate handler for the HTTP method
 
                 s.sendall(response)
 
-                if headers.get('connection', '') == 'close':
+                if headers.get('connection', '') == 'close': # close connection if specified by client
                     print('connection closed on request header')
                     break
             except (socket.timeout):
@@ -119,17 +131,24 @@ def handle_connection(connection: socket.socket) -> None:
     print('thread shut down')
 
 def main() -> None:
+    """
+    Main server loop
+
+    Listens to new connections on HOST:PORT
+
+    Spawns worker thread to handle request
+    """
     with sock as s:
         s.bind((HOST, PORT))
         s.listen()
-        s.settimeout(1.0)
+        s.settimeout(1.0) # timeout is needed since accept is blocking
         while RUNNING:
             try:
                 conn, addr = s.accept()
             except socket.timeout:
                 continue
 
-            connection_worker = threading.Thread(target=handle_connection, args=(conn,), daemon=True)
+            connection_worker = threading.Thread(target=handle_connection, args=(conn,), daemon=True) # daemon so the workers don't prevent main server shutdown
             connection_worker.start()
 
 if __name__ == '__main__':
