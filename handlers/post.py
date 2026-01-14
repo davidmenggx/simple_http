@@ -32,6 +32,7 @@ def post(path: str, headers: dict[str, str], body: bytes = b'') -> bytes:
 
                             response = (
                                 f'HTTP/1.1 201 Created\r\n'
+                                f"Server: David's server\r\n"
                                 f'Date: {now}\r\n'
                                 f'Location: {path}\r\n'
                                 f'Content-Type: {MIME_TYPES.get(requested_path.suffix, 'application/octet-stream')}\r\n'

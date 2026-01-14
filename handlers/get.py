@@ -25,9 +25,9 @@ def get(path: str, headers: dict[str,str], body: bytes = b'') -> bytes:
                         current_etag = get_etag(content)
                         user_etag = headers.get('if-none-match')
                         if user_etag and user_etag[1:-1] == current_etag:
-                            return (f'HTTP/1.1 304 Not Modified\r\nDate: {now}\r\n\r\n').encode('utf-8')
+                            return (f"HTTP/1.1 304 Not Modified\r\nDate: {now}\r\nServer: David's server\r\n\r\n").encode('utf-8')
 
-                        response = (f'HTTP/1.1 200 OK\r\nDate: {now}\r\n')
+                        response = (f"HTTP/1.1 200 OK\r\nDate: {now}\r\nDavid's server\r\n")
                         
                         if headers.get('connection', '') == 'close':
                             response += (f'Connection: Close\r\n')
