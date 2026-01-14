@@ -1,4 +1,4 @@
-import hashlib
+import os
 from pathlib import Path
 from datetime import datetime, timezone
 
@@ -36,6 +36,12 @@ def get(path: str, headers: dict[str,str], body: bytes = b'') -> bytes:
                         
                         content_type = MIME_TYPES.get(requested_path.suffix, 'application/octet-stream')
                         response += (f'Content-Length: {len(content)}\r\nContent-Type: {content_type}\r\n')
+
+                        last_modified_timestamp = os.stat(requested_path).st_mtime
+                        modified_utc = datetime.fromtimestamp(last_modified_timestamp, tz=timezone.utc)
+                        last_modified = modified_utc.strftime("%A, %d %B %Y %H:%M:%S GMT")
+
+                        response += (f'Last-Modified: {last_modified}\r\n')
                         
                         response += (f'ETag: "{current_etag}"\r\n')
 
