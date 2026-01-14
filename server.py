@@ -4,7 +4,7 @@ import signal
 
 from constants import responses
 from exceptions import ParseError
-from handlers import get, head, post
+from handlers import get, head, post, options
 from utilities import get_headers, get_request_line
 
 HOST = '127.0.0.1'
@@ -14,7 +14,7 @@ RUNNING = True
 
 REQUIRED_HEADERS = ['host', 'content-length']
 KEEPALIVE_TIME = 5 # seconds
-DISPATCH_DICTIONARY = {'GET': get, 'HEAD': head, 'POST': post}
+DISPATCH_DICTIONARY = {'GET': get, 'HEAD': head, 'POST': post, 'OPTIONS': options}
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
