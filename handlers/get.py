@@ -29,7 +29,9 @@ def get(path: str, headers: dict[str,str], body: bytes = b'') -> bytes:
     4) 404 Not Found
     5) 500 Internal Server Error
     """
-    if path[0] == '/':
+    if path == '/':
+        path = 'index.html'
+    elif path[0] == '/':
         path = path[1:]
 
     requested_path = (BASE_DIR / path).resolve()
