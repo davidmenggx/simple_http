@@ -19,7 +19,7 @@ git clone https://github.com/davidmenggx/simple_http && cd simple_http
 ```
 2. **Run the server:**
 ```bash
-python server.py
+python3 server.py
 ```
 **Optional: Specify port number, keepalive time (seconds), and verbose**<br>
 Defaults to port 8080, 5 seconds keep-alive, no logging
@@ -58,3 +58,4 @@ Now read `api/public_file.txt`:
 ```bash
 curl -i http://localhost:8080/api/public_file.txt
 ```
+
