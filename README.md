@@ -24,7 +24,7 @@ python3 server.py
 **Optional: Specify port number, keepalive time (seconds), and verbose**<br>
 Defaults to port 8080, 5 seconds keep-alive, no logging
 ```bash
-python server.py --port 5678 --keepalive 30 -v
+python3 server.py --port 5678 --keepalive 30 -v
 ```
 ## Usage
 Base directory is `public/`<br><br>
@@ -58,4 +58,5 @@ Now read `api/public_file.txt`:
 ```bash
 curl -i http://localhost:8080/api/public_file.txt
 ```
+
 
