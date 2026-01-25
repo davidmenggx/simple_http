@@ -2,4 +2,12 @@ __pycache__/
 
 sample_client.py
 
+testing_responses.py
+
 *.log
+
+.venv/
+
+.pytest_cache
+
+.coverage

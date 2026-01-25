@@ -53,11 +53,12 @@ def head(path: str, headers: dict[str,str], _: bytes = b'') -> bytes:
 
                 # Compare ETags, if match, returned Not Modified
                 current_etag = get_etag(str(requested_path))
-                user_etag = headers.get('if-none-match')
-                if user_etag and user_etag[0] == '"' and user_etag[-1] == '"':
-                    user_etag = user_etag[1:-1]
-                if user_etag and user_etag == current_etag:
-                    return (f"HTTP/1.1 304 Not Modified\r\nDate: {now}\r\nServer: David's server\r\n\r\n").encode('utf-8')
+                if current_etag:
+                    user_etag = headers.get('if-none-match')
+                    if user_etag and user_etag[0] == '"' and user_etag[-1] == '"':
+                        user_etag = user_etag[1:-1]
+                    if user_etag and user_etag == current_etag:
+                        return (f"HTTP/1.1 304 Not Modified\r\nDate: {now}\r\nServer: David's server\r\n\r\n").encode('utf-8')
 
                 # Base response to build on
                 response = (f"HTTP/1.1 200 OK\r\nDate: {now}\r\nServer: David's server\r\n")
@@ -76,7 +77,8 @@ def head(path: str, headers: dict[str,str], _: bytes = b'') -> bytes:
                 last_modified = modified_utc.strftime("%a, %d %b %Y %H:%M:%S GMT")
                 response += (f'Last-Modified: {last_modified}\r\n')
                 
-                response += (f'ETag: "{current_etag}"\r\n')
+                if current_etag:
+                    response += (f'ETag: "{current_etag}"\r\n')
 
                 response += (f'Cache-Control: max-age="{random.choice(CACHE_TIMES)}"\r\n')
 

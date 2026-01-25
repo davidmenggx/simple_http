@@ -1,4 +1,3 @@
-import random
 from pathlib import Path
 from datetime import datetime, timezone
 
@@ -7,8 +6,6 @@ from constants import responses, MIME_TYPES
 
 BASE_DIR = Path('public').resolve()
 API_DIR = Path('public/api').resolve()
-
-CACHE_TIMES = [10, 30, 60, 600] # Randomly select cache times (in seconds), as an example
 
 def post(path: str, headers: dict[str, str], body: bytes = b'') -> bytes:
     """
@@ -66,16 +63,16 @@ def post(path: str, headers: dict[str, str], body: bytes = b'') -> bytes:
                     f'Date: {now}\r\n'
                     f'Location: {path}\r\n'
                     f'Content-Type: {MIME_TYPES.get(requested_path.suffix, 'application/octet-stream')}\r\n'
-                    f'ETag: {etag}\r\n'
                     )
+                
+                if etag:
+                    response += f'ETag: {etag}\r\n'
                 
                 if headers.get('connection', '') == 'close':
                     response += ('Connection: Close\r\n')
                 else:
                     response += ('Connection: Keep-Alive\r\n')
                 
-                response += (f'Cache-Control: max-age="{random.choice(CACHE_TIMES)}"\r\n')
-
                 response += ('\r\n')
                 
                 return response.encode('utf-8')
