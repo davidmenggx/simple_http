@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 
 def _format_error_response(status_line: str) -> bytes:
+    """Template for standard server responses (errors)"""
     now = datetime.now(timezone.utc).strftime("%a, %d %b %Y %H:%M:%S GMT")
     return (f"{status_line}\r\nServer: David's server\r\nDate: {now}\r\nContent-Length: 0\r\n\r\n").encode('utf-8')
 

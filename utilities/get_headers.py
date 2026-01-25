@@ -1,5 +1,3 @@
-from parse_error import ParseError
-
 def get_headers(headers: list[str]) -> dict[str, str]:
     """
     Returns HTTP headers in dictionary mapping
@@ -12,7 +10,7 @@ def get_headers(headers: list[str]) -> dict[str, str]:
         header = h.split(': ')
 
         if len(header) != 2:
-            raise ParseError
+            raise ValueError
         
         res[header[0].lower()] = header[1].lower()
     

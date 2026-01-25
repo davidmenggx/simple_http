@@ -1,3 +1,4 @@
+# For the Content-Type header
 MIME_TYPES = {
     '.html': 'text/html',
     '.css': 'text/css',

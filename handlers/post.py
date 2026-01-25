@@ -1,3 +1,4 @@
+import random
 from pathlib import Path
 from datetime import datetime, timezone
 
@@ -6,6 +7,8 @@ from constants import responses, MIME_TYPES
 
 BASE_DIR = Path('public').resolve()
 API_DIR = Path('public/api').resolve()
+
+CACHE_TIMES = [10, 30, 60, 600] # Randomly select cache times (in seconds), as an example
 
 def post(path: str, headers: dict[str, str], body: bytes = b'') -> bytes:
     """
@@ -29,15 +32,17 @@ def post(path: str, headers: dict[str, str], body: bytes = b'') -> bytes:
     4) 405 Method Not Allowed
     5) 500 Internal Server Error
     """
-    if path[0] == '/':
+    if path == '/':
+        path = 'index.html'
+    elif path[0] == '/':
         path = path[1:]
 
     requested_path = (BASE_DIR / path).resolve()
 
-    if not (BASE_DIR in requested_path.parents or BASE_DIR == requested_path):
+    if not (BASE_DIR in requested_path.parents or BASE_DIR == requested_path): # Prevent path traversal vulnerabilities
         return responses.forbidden()
     
-    if not (API_DIR in requested_path.parents or API_DIR == requested_path):
+    if not (API_DIR in requested_path.parents or API_DIR == requested_path): # Only files in public/api/ can be accessed
         return responses.method_not_allowed()
     
     if not (requested_path.exists() and requested_path.is_file()):
@@ -54,6 +59,7 @@ def post(path: str, headers: dict[str, str], body: bytes = b'') -> bytes:
 
                 now = datetime.now(timezone.utc).strftime("%a, %d %b %Y %H:%M:%S GMT")
 
+                # Base response to build on
                 response = (
                     f'HTTP/1.1 200 OK\r\n'
                     f"Server: David's server\r\n"
@@ -64,9 +70,11 @@ def post(path: str, headers: dict[str, str], body: bytes = b'') -> bytes:
                     )
                 
                 if headers.get('connection', '') == 'close':
-                    response += (f'Connection: Close\r\n')
+                    response += ('Connection: Close\r\n')
                 else:
-                    response += (f'Connection: Keep-Alive\r\n')
+                    response += ('Connection: Keep-Alive\r\n')
+                
+                response += (f'Cache-Control: max-age="{random.choice(CACHE_TIMES)}"\r\n')
 
                 response += ('\r\n')
                 
