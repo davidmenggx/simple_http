@@ -1,10 +1,11 @@
 # simple-http
-Multi-threaded HTTP server built using only the Python standard library
+Multi-threaded HTTP server built using only the Python standard library<br><br>
+*Server instances compatible with [reverse proxy](https://github.com/davidmenggx/multiplexed-reverse-proxy) (work in progress)*
 ## Features
 - HTTP/1.1 subset
 - Serves Static Files: Delivers HTML, CSS, JS, image, json, txt, and other data formats
 - Support for IPv4 connections via TCP
-- Handles multiple client requests simultaneously with multi-threading
+- Handles multiple client requests simultaneously with multi-threading (thread-per-request model)
 - ***HTTP Methods***: Support for **`GET`**, **`POST`** (subset), **`OPTIONS`**, and **`HEAD`** methods
 - ***HTTP Headers***: Support for `Content-Type`, `Content-Length`, **`Connection`**, **`ETag`**, **`If-None-Match`**, `Date`, `Last-Modified`, `Host`, and `User-Agent` headers
 - ***HTTP Responses***: Support for `200 OK`, `204 No Content`, `304 Not Modified`, `400 Bad Request`, `403 Forbidden`, `404 Not Found`, `405 Method Not Allowed`, `500 Internal Server Error`, `501 Not Implemented`, and `505 HTTP Version Not Supported` messages
@@ -58,6 +59,8 @@ Now read `api/public_file.txt`:
 ```bash
 curl -i http://localhost:8080/api/public_file.txt
 ```
+
+
 
 
 
