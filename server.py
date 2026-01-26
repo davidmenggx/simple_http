@@ -20,6 +20,9 @@ args = parser.parse_args()
 if not (0 <= args.port <= 65535):
     raise ValueError(f'FATAL: specified port {args.port} does not exist!')
 
+if not args.keepalive >= 0:
+    raise ValueError(f'FATAL: keep-alive time must be positive, currently {args.keepalive}')
+
 if not (0 <= args.discovery <= 65535):
     raise ValueError(f'FATAL: specified discovery port {args.discovery} does not exist!')
 
