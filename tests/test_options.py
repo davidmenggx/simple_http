@@ -29,3 +29,17 @@ def test_invalid_path():
     response = options('/invalid.html', {})
     
     assert b'404 Not Found' in response
+
+def test_keepalive_connection():
+    response1 = options('/', {'connection': 'close'})
+    response2 = options('/', {})
+
+    assert b'Connection: Close' in response1
+    assert b'Connection: Keep-Alive' in response2
+
+def test_internal_server_error(mocker):
+    mocker.patch('handlers.options.random.choice', side_effect=RuntimeError("Unexpected failure"))
+
+    response = options('/', {})
+
+    assert b'500 Internal Server Error' in response

@@ -11,3 +11,6 @@ testing_responses.py
 .pytest_cache
 
 .coverage
+.coveragerc
+
+.vscode

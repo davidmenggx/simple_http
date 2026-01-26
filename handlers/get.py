@@ -6,8 +6,6 @@ from datetime import datetime, timezone
 from utilities import get_etag
 from constants import responses, MIME_TYPES
 
-random.seed(42)
-
 BASE_DIR = Path('public').resolve()
 
 CACHE_TIMES = [10, 30, 60, 600] # Randomly select cache times (in seconds), as an example
