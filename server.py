@@ -164,11 +164,10 @@ def handle_connection(connection: socket.socket) -> None:
                 if headers.get('connection', '') == 'close': # Close connection if specified by client
                     LOGGER.debug('Connection closed by client, specified in header')
                     break
+            except ConnectionResetError:
+                break
             except (socket.timeout):
                 LOGGER.debug(f'Connection closed naturally, idle for {KEEPALIVE_TIME} seconds')
-                break
-            except ConnectionResetError:
-                s.sendall(responses.internal_server_error())
                 break
     LOGGER.debug('Thread closed')
 

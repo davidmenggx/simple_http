@@ -5,6 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "locust>=2.43.1",
     "pytest>=9.0.2",
     "pytest-cov>=7.0.0",
     "pytest-mock>=3.15.1",
