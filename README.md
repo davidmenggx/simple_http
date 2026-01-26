@@ -60,7 +60,8 @@ Now read `api/public_file.txt`:
 curl -i http://localhost:8080/api/public_file.txt
 ```
 
-
-
-
-
+## Performance
+Using Locust*, one server instance was able to achieve up to *2500 RPS*, *40 ms median latency*, and *80 ms p99 latency* with 100 concurrent connections using persistent connections**<br><br>
+*Running on a Dockerized environment on my laptop (8-core Intel Ultra 7 with 32 GB of RAM on Windows 11)<br><br>
+**For reference, without persistent connections I am only able to achieve 1000 RPS<br><br>
+![Locust performance profile](assets/baseline_rps.png)
